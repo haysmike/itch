@@ -8,10 +8,13 @@
 
 extern const char PNG_SIG[8];
 
+@class Chunk;
+
 @interface Document : NSDocument
 
 @property (strong, readonly) NSMutableArray *chunks;
 
 - (NSImage *)image;
+- (void)updateChunk:(Chunk *)chunk;
 
 @end

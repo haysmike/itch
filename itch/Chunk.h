@@ -8,6 +8,8 @@
 
 @interface Chunk : NSObject
 
+@property NSRange range;
+
 + (UInt32)readChunkLength:(NSData *)data location:(NSUInteger)location;
 
 - (id)initWithData:(NSData *)data;

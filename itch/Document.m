@@ -12,7 +12,9 @@
 
 const char PNG_SIG[8] = {137, 80, 78, 71, 13, 10, 26, 10};
 
-@implementation Document
+@implementation Document {
+    NSMutableData *_pngData;
+}
 
 - (id)init
 {
@@ -34,11 +36,12 @@ const char PNG_SIG[8] = {137, 80, 78, 71, 13, 10, 26, 10};
 
 - (NSData *)dataOfType:(NSString *)typeName error:(NSError **)outError
 {
-    return [self concatenateChunks];
+    return _pngData;
 }
 
 - (BOOL)readFromData:(NSData *)data ofType:(NSString *)typeName error:(NSError **)outError
 {
+    _pngData = [data mutableCopy];
     if (![self isValidSignature:data]) {
         NSLog(@"NOT A PNG");
         //        outError = [NSError errorWithDomain:(NSString *) code:(NSInteger) userInfo:(NSDictionary *)]
@@ -49,7 +52,9 @@ const char PNG_SIG[8] = {137, 80, 78, 71, 13, 10, 26, 10};
     NSUInteger location = 8;
     while (location < [data length]) {
         UInt32 chunkLength = [Chunk readChunkLength:data location:location];
-        Chunk *chunk = [[Chunk alloc] initWithData:[data subdataWithRange:NSMakeRange(location, chunkLength)]];
+        NSRange chunkRange = NSMakeRange(location, chunkLength);
+        Chunk *chunk = [[Chunk alloc] initWithData:[data subdataWithRange:chunkRange]];
+        [chunk setRange:chunkRange];
         [[self chunks] addObject:chunk];
         location += chunkLength;
     }
@@ -64,18 +69,19 @@ const char PNG_SIG[8] = {137, 80, 78, 71, 13, 10, 26, 10};
     return !memcmp(sig, PNG_SIG, sizeof(PNG_SIG));
 }
 
-- (NSData *)concatenateChunks
+- (NSRange)rangeForChunkWithIndex:(NSUInteger)index
 {
-    NSMutableData *png = [NSMutableData dataWithBytes:PNG_SIG length:sizeof(PNG_SIG)];
-    for (id chunk in [self chunks]) {
-        [png appendData:[chunk data]];
-    }
-    return png;
+    return [[_chunks objectAtIndex:index] range];
+}
+
+- (void)updateChunk:(Chunk *)chunk
+{
+    [_pngData replaceBytesInRange:[chunk range] withBytes:[[chunk data] bytes]];
 }
 
 - (NSImage *)image
 {
-    return [[NSImage alloc] initWithData:[self concatenateChunks]];
+    return [[NSImage alloc] initWithData:_pngData];
 }
 
 @end
