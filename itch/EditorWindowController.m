@@ -18,7 +18,6 @@
 
 @implementation EditorWindowController {
     Chunk *_chunk;
-    BOOL _updating;
 }
 
 - (id)init
@@ -139,10 +138,6 @@
 
     [[self imageView] setImage:image];
     [[self tableView] reloadData];
-
-    @synchronized (self) {
-        _updating = NO;
-    }
 }
 
 @end
