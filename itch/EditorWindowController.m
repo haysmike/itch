@@ -18,6 +18,7 @@
 
 @implementation EditorWindowController {
     NSMutableArray *_textViews;
+    NSTimer *_timer;
 }
 
 - (id)init
@@ -29,15 +30,16 @@
 - (ItchTextView *)getTextViewForChunk:(NSUInteger)index
 {
     ItchTextView *textView = [_textViews objectAtIndex:index];
+    NSRect frame = [[self customView] frame];
+    frame.origin = NSZeroPoint;
     if ([textView isEqual:[NSNull null]]) {
-        NSRect frame = [[self customView] frame];
-        frame.origin = NSZeroPoint;
         textView = [[ItchTextView alloc] initWithFrame:frame];
         [textView setFont:[NSFont fontWithName:@"Menlo" size:13.0f]];
         [textView setEnabledTextCheckingTypes:0];
         [textView setAllowsUndo:YES];
         [textView setIndex:index];
         [textView setDelegate:self];
+        [textView setAutoresizingMask:(NSViewHeightSizable|NSViewWidthSizable|NSViewMinXMargin|NSViewMaxXMargin|NSViewMinYMargin|NSViewMaxYMargin)];
         [_textViews insertObject:textView atIndex:index];
     }
     [[self customView] setDocumentView:textView];
@@ -48,18 +50,12 @@
 {
     [super windowDidLoad];
 
-    [[self tableView] setDataSource:self];
-    [[self tableView] setDelegate:self];
-
-    _textViews = [NSMutableArray array];
-    for (int i = 0; i < [[[self document] chunks] count]; i++) {
-        [_textViews addObject:[NSNull null]];
-    }
-    [[self imageView] setImage:[[self document] image]];
+    [[self customView] setDocumentView:nil];
 }
 
 - (void)dealloc
 {
+    // TODO: make sure this actually deallocs the text views
     [_textViews removeAllObjects];
 }
 
@@ -139,6 +135,41 @@
     return c;
 }
 
+- (void)updateImage
+{
+    NSImage *image = [[self document] image];
+    [[self imageView] setImage:image];
+}
+
+- (void)setDocumentEdited:(BOOL)dirtyFlag
+{
+    NSUndoManager *undoManager = [[self document] undoManager];
+    BOOL canRedo = undoManager && [undoManager canRedo];
+    if (!dirtyFlag && !canRedo) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[self tableView] setDataSource:self];
+            [[self tableView] setDelegate:self];
+
+            if (_textViews) {
+                for (id obj in _textViews) {
+                    if (![obj isEqual:[NSNull null]]) {
+                        [obj removeFromSuperview];
+                    }
+                }
+                [_textViews removeAllObjects];
+            } else {
+                _textViews = [NSMutableArray arrayWithCapacity:[[[self document] chunks] count]];
+            }
+            for (int i = 0; i < [[[self document] chunks] count]; i++) {
+                [_textViews addObject:[NSNull null]];
+            }
+            [[self tableView] selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:NO];
+            [self updateImage];
+        });
+    }
+    [super setDocumentEdited:dirtyFlag];
+}
+
 - (void)textDidChange:(NSNotification *)notification
 {
     ItchTextView *textView = [notification object];
@@ -155,10 +186,11 @@
 
     [chunk updateChunkData:data];
     [[self document] updateChunk:chunk];
-    [[self tableView] reloadDataForRowIndexes:[NSIndexSet indexSetWithIndex:[textView index]] columnIndexes:[NSIndexSet indexSetWithIndex:2]];
+    [[self tableView] reloadDataForRowIndexes:[NSIndexSet indexSetWithIndex:[textView index]]
+                                columnIndexes:[NSIndexSet indexSetWithIndex:2]];
 
-    NSImage *image = [[self document] image];
-    [[self imageView] setImage:image];
+    // TODO: this is slow. figure out a way of not having it compete for the main queue
+    [self updateImage];
 }
 
 @end

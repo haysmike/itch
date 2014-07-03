@@ -34,6 +34,16 @@ const char PNG_SIG[8] = {137, 80, 78, 71, 13, 10, 26, 10};
     return NO;
 }
 
+- (void)revertDocumentToSaved:(id)sender
+{
+    [super revertDocumentToSaved:sender];
+}
+
+- (BOOL)revertToContentsOfURL:(NSURL *)url ofType:(NSString *)typeName error:(NSError *__autoreleasing *)outError
+{
+    return [super revertToContentsOfURL:url ofType:typeName error:outError];
+}
+
 - (NSData *)dataOfType:(NSString *)typeName error:(NSError **)outError
 {
     return _pngData;
