@@ -8,4 +8,6 @@
 
 @interface ItchTextView : NSTextView
 
+@property NSUInteger index;
+
 @end

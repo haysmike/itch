@@ -12,6 +12,6 @@
 
 @property (weak) IBOutlet NSTableView *tableView;
 @property (weak) IBOutlet NSImageView *imageView;
-@property (assign) IBOutlet ItchTextView *textView;
+@property (weak) IBOutlet NSClipView *customView;
 
 @end

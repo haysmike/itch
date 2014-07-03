@@ -17,13 +17,31 @@
 @end
 
 @implementation EditorWindowController {
-    Chunk *_chunk;
+    NSMutableArray *_textViews;
 }
 
 - (id)init
 {
     self = [super initWithWindowNibName:@"Document"];
     return self;
+}
+
+- (ItchTextView *)getTextViewForChunk:(NSUInteger)index
+{
+    ItchTextView *textView = [_textViews objectAtIndex:index];
+    if ([textView isEqual:[NSNull null]]) {
+        NSRect frame = [[self customView] frame];
+        frame.origin = NSZeroPoint;
+        textView = [[ItchTextView alloc] initWithFrame:frame];
+        [textView setFont:[NSFont fontWithName:@"Menlo" size:13.0f]];
+        [textView setEnabledTextCheckingTypes:0];
+        [textView setAllowsUndo:YES];
+        [textView setIndex:index];
+        [textView setDelegate:self];
+        [_textViews insertObject:textView atIndex:index];
+    }
+    [[self customView] setDocumentView:textView];
+    return textView;
 }
 
 - (void)windowDidLoad
@@ -33,16 +51,16 @@
     [[self tableView] setDataSource:self];
     [[self tableView] setDelegate:self];
 
-    [[self textView] setFont:[NSFont fontWithName:@"Menlo" size:13.0f]];
-    [[self textView] setEnabledTextCheckingTypes:0];
-    [[self textView] setDelegate:self];
-
+    _textViews = [NSMutableArray array];
+    for (int i = 0; i < [[[self document] chunks] count]; i++) {
+        [_textViews addObject:[NSNull null]];
+    }
     [[self imageView] setImage:[[self document] image]];
 }
 
 - (void)dealloc
 {
-    [self setTextView:nil];
+    [_textViews removeAllObjects];
 }
 
 #pragma mark - NSTableViewDataSource
@@ -81,17 +99,17 @@
         return;
     }
 
-    _chunk = [[[self document] chunks] objectAtIndex:row];
+    Chunk *chunk = [[[self document] chunks] objectAtIndex:row];
 
     NSMutableString *wowe = [NSMutableString string];
 
     // for each byte
-    const Byte *bytes = (Byte *) [[_chunk chunkData] bytes];
-    for (int i = 0; i < [_chunk chunkDataLength]; i++) {
+    const Byte *bytes = (Byte *) [[chunk chunkData] bytes];
+    for (int i = 0; i < [chunk chunkDataLength]; i++) {
         Byte chars = bytes[i];
         [wowe appendFormat:@"%02x", chars];
     }
-    [[self textView] setString:wowe];
+    [[self getTextViewForChunk:row] setString:wowe];
 }
 
 #pragma mark - NSTextViewDelegate
@@ -123,22 +141,24 @@
 
 - (void)textDidChange:(NSNotification *)notification
 {
-    // TODO: throttling
-    const char *str = [[[self textView] string] cStringUsingEncoding:NSASCIIStringEncoding];
+    ItchTextView *textView = [notification object];
+    const char *str = [[textView string] cStringUsingEncoding:NSASCIIStringEncoding];
+
+    Chunk *chunk = [[[self document] chunks] objectAtIndex:[textView index]];
     Byte c;
     NSMutableData *data = [NSMutableData data];
-    for (int i = 0; i + 1 < [_chunk chunkDataLength] * 2; i += 2) {
+    for (int i = 0; i + 1 < [chunk chunkDataLength] * 2; i += 2) {
         c = [self byteForChar:str[i]] << 4;
         c += [self byteForChar:str[i+1]];
         [data appendBytes:&c length:1];
     }
 
-    [_chunk updateChunkData:data];
-    [[self document] updateChunk:_chunk];
-    NSImage *image = [[self document] image];
+    [chunk updateChunkData:data];
+    [[self document] updateChunk:chunk];
+    [[self tableView] reloadDataForRowIndexes:[NSIndexSet indexSetWithIndex:[textView index]] columnIndexes:[NSIndexSet indexSetWithIndex:2]];
 
+    NSImage *image = [[self document] image];
     [[self imageView] setImage:image];
-    [[self tableView] reloadData];
 }
 
 @end
