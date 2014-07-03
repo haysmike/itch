@@ -116,21 +116,21 @@
 		BFB022781962664500233D9E /* itch */ = {
 			isa = PBXGroup;
 			children = (
+				BFB022BB1963346000233D9E /* Chunk.h */,
+				BFB022BC1963346000233D9E /* Chunk.m */,
+				BFB022B81963343100233D9E /* ChunkParser.h */,
+				BFB022B91963343100233D9E /* ChunkParser.m */,
 				BFB022841962664500233D9E /* Document.h */,
 				BFB022851962664500233D9E /* Document.m */,
+				BFB022871962664500233D9E /* Document.xib */,
 				BFB022AF196274C000233D9E /* EditorWindowController.h */,
 				BFB022B0196274C000233D9E /* EditorWindowController.m */,
 				BFB022B51962754500233D9E /* ItchApplication.h */,
 				BFB022B61962754500233D9E /* ItchApplication.m */,
-				BFB022871962664500233D9E /* Document.xib */,
-				BFB0228A1962664500233D9E /* MainMenu.xib */,
-				BFB022791962664500233D9E /* Supporting Files */,
-				BFB022B81963343100233D9E /* ChunkParser.h */,
-				BFB022B91963343100233D9E /* ChunkParser.m */,
-				BFB022BB1963346000233D9E /* Chunk.h */,
-				BFB022BC1963346000233D9E /* Chunk.m */,
 				BFB022C3196397AF00233D9E /* ItchTextView.h */,
 				BFB022C4196397AF00233D9E /* ItchTextView.m */,
+				BFB0228A1962664500233D9E /* MainMenu.xib */,
+				BFB022791962664500233D9E /* Supporting Files */,
 			);
 			path = itch;
 			sourceTree = "<group>";

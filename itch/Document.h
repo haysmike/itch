@@ -11,6 +11,7 @@ extern const char PNG_SIG[8];
 @interface Document : NSDocument
 
 @property (strong) NSArray *chunks;
-@property (strong) NSImage *image;
+
+- (NSImage *)image;
 
 @end

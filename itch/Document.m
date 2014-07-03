@@ -56,7 +56,6 @@ const char PNG_SIG[8] = {137, 80, 78, 71, 13, 10, 26, 10};
 - (BOOL)readFromData:(NSData *)data ofType:(NSString *)typeName error:(NSError **)outError
 {
     _data = data;
-    self.image = [[NSImage alloc] initWithData:_data];
     NSUInteger loc = [self consumeSignature];
     if (loc == 0) {
         NSLog(@"NOT A PNG");
@@ -94,6 +93,11 @@ const char PNG_SIG[8] = {137, 80, 78, 71, 13, 10, 26, 10};
 - (void)setChunks:(NSArray *)chunks
 {
     // update the file yo
+}
+
+- (NSImage *)image
+{
+    return [[NSImage alloc] initWithData:_data];
 }
 
 @end

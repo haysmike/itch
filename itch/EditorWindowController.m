@@ -138,7 +138,7 @@
     for (id chunk in [[self document] chunks]) {
         [png appendData:[chunk allData]];
     }
-    NSLog(@"PNG\n%@", png);
+//    NSLog(@"PNG\n%@", png);
     [[self imageView] setImage:[[NSImage alloc] initWithData:png]];
 }
 

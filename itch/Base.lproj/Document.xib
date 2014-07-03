@@ -40,7 +40,7 @@
                                             <rect key="frame" x="0.0" y="17" width="218" height="159"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <subviews>
-                                                <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" multipleSelection="NO" autosaveColumns="NO" typeSelect="NO" headerView="TpD-qD-vsg" id="Q5c-Sc-Nl5">
+                                                <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" alternatingRowBackgroundColors="YES" multipleSelection="NO" autosaveColumns="NO" typeSelect="NO" headerView="TpD-qD-vsg" id="Q5c-Sc-Nl5">
                                                     <rect key="frame" x="0.0" y="0.0" width="218" height="159"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <size key="intercellSpacing" width="3" height="2"/>
