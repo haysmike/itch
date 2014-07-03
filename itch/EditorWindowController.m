@@ -6,7 +6,6 @@
 //  Copyright (c) 2014 murkey. All rights reserved.
 //
 
-#import "zlib.h"
 
 #import "EditorWindowController.h"
 #import "Document.h"
@@ -31,7 +30,7 @@
 {
     [super windowDidLoad];
 
-    [[self imageView] setImage:[[super document] image]];
+    [[self imageView] setImage:[[self document] image]];
 
     [[self tableView] setDataSource:self];
     [[self tableView] setDelegate:self];
@@ -50,12 +49,12 @@
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView
 {
-    return [[[super document] chunks] count];
+    return [[[self document] chunks] count];
 }
 
 - (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row;
 {
-    Chunk *chunk = [[[super document] chunks] objectAtIndex:row];
+    Chunk *chunk = [[[self document] chunks] objectAtIndex:row];
     NSString *columnName = [tableColumn identifier];
     if ([columnName isEqualToString:@"type"]) {
         return [chunk type];
@@ -82,7 +81,7 @@
         return;
     }
 
-    _chunk = [[[super document] chunks] objectAtIndex:row];
+    _chunk = [[[self document] chunks] objectAtIndex:row];
 
     NSMutableString *wowe = [NSMutableString string];
 
@@ -117,25 +116,30 @@
     } else if (c >= 'a' && c <= 'f') {
         c = c - 'a' + 0x0a;
     } else {
-        NSLog(@"WTF");
+        NSLog(@"WTF %c", c);
     }
     return c;
 }
 
 - (void)textDidChange:(NSNotification *)notification
 {
-    NSMutableData *data = [NSMutableData dataWithData:[[_chunk type] dataUsingEncoding:NSASCIIStringEncoding]];
     const char *str = [[[self textView] string] cStringUsingEncoding:NSASCIIStringEncoding];
 
     Byte c;
+    NSMutableData *data = [NSMutableData data];
     for (int i = 0; i + 1 < MIN(strlen(str), [_chunk size] * 2); i += 2) {
         c = [self byteForChar:str[i]] << 4;
         c += [self byteForChar:str[i+1]];
         [data appendBytes:&c length:1];
     }
 
-    uLong crc = crc32(0L, [data bytes], (uInt)[data length]);
-    NSLog(@"crc: 0x%08lx", crc);
+    [_chunk updateData:data];
+    NSMutableData *png = [NSMutableData dataWithBytes:PNG_SIG length:sizeof(PNG_SIG)];
+    for (id chunk in [[self document] chunks]) {
+        [png appendData:[chunk allData]];
+    }
+    NSLog(@"PNG\n%@", png);
+    [[self imageView] setImage:[[NSImage alloc] initWithData:png]];
 }
 
 @end

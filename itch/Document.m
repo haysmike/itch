@@ -11,7 +11,7 @@
 #import "Chunk.h"
 #import "ChunkParser.h"
 
-static const char PNG_SIG[8] = {137, 80, 78, 71, 13, 10, 26, 10};
+const char PNG_SIG[8] = {137, 80, 78, 71, 13, 10, 26, 10};
 
 @implementation Document {
     NSData *_data;
@@ -79,7 +79,7 @@ static const char PNG_SIG[8] = {137, 80, 78, 71, 13, 10, 26, 10};
 {
     char sig[8];
     [_data getBytes:sig length:sizeof(PNG_SIG)];
-    if (strncmp(sig, PNG_SIG, sizeof(PNG_SIG))) {
+    if (memcmp(sig, PNG_SIG, sizeof(PNG_SIG))) {
         return 0;
     } else {
         return sizeof(PNG_SIG);

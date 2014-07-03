@@ -13,4 +13,10 @@
 @property NSData *data;
 @property UInt32 crc;
 
+- (void)updateData:(NSData *)newData;
+- (NSData *)sizeData;
+- (NSData *)crcData;
+
+- (NSData *)allData;
+
 @end

@@ -6,6 +6,8 @@
 //  Copyright (c) 2014 murkey. All rights reserved.
 //
 
+extern const char PNG_SIG[8];
+
 @interface Document : NSDocument
 
 @property (strong) NSArray *chunks;
