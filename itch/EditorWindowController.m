@@ -18,6 +18,7 @@
 
 @implementation EditorWindowController {
     Chunk *_chunk;
+    BOOL _updating;
 }
 
 - (id)init
@@ -30,14 +31,14 @@
 {
     [super windowDidLoad];
 
-    [[self imageView] setImage:[[self document] image]];
-
     [[self tableView] setDataSource:self];
     [[self tableView] setDelegate:self];
 
     [[self textView] setFont:[NSFont fontWithName:@"Menlo" size:13.0f]];
-    [[self textView] setContinuousSpellCheckingEnabled:NO];
+    [[self textView] setEnabledTextCheckingTypes:0];
     [[self textView] setDelegate:self];
+
+    [[self imageView] setImage:[[self document] image]];
 }
 
 - (void)dealloc
@@ -57,11 +58,11 @@
     Chunk *chunk = [[[self document] chunks] objectAtIndex:row];
     NSString *columnName = [tableColumn identifier];
     if ([columnName isEqualToString:@"type"]) {
-        return [chunk type];
+        return [chunk chunkType];
     } else if ([columnName isEqualToString:@"size"]) {
-        return [NSString stringWithFormat:@"%u", [chunk size]];
+        return [NSString stringWithFormat:@"%u", [chunk chunkDataLength]];
     } else if ([columnName isEqualToString:@"crc"]) {
-        return [NSString stringWithFormat:@"0x%08x", [chunk crc]];
+        return [NSString stringWithFormat:@"0x%08x", [chunk chunkCrc]];
     }
 
     return nil;
@@ -86,8 +87,8 @@
     NSMutableString *wowe = [NSMutableString string];
 
     // for each byte
-    const Byte *bytes = (Byte *) [[_chunk data] bytes];
-    for (int i = 0; i < [_chunk size]; i++) {
+    const Byte *bytes = (Byte *) [[_chunk chunkData] bytes];
+    for (int i = 0; i < [_chunk chunkDataLength]; i++) {
         Byte chars = bytes[i];
         [wowe appendFormat:@"%02x", chars];
     }
@@ -116,30 +117,32 @@
     } else if (c >= 'a' && c <= 'f') {
         c = c - 'a' + 0x0a;
     } else {
-        NSLog(@"WTF %c", c);
+        NSLog(@"invalid half-byte %c", c);
     }
     return c;
 }
 
 - (void)textDidChange:(NSNotification *)notification
 {
+    // TODO: throttling
     const char *str = [[[self textView] string] cStringUsingEncoding:NSASCIIStringEncoding];
-
     Byte c;
     NSMutableData *data = [NSMutableData data];
-    for (int i = 0; i + 1 < MIN(strlen(str), [_chunk size] * 2); i += 2) {
+    for (int i = 0; i + 1 < [_chunk chunkDataLength] * 2; i += 2) {
         c = [self byteForChar:str[i]] << 4;
         c += [self byteForChar:str[i+1]];
         [data appendBytes:&c length:1];
     }
 
-    [_chunk updateData:data];
-    NSMutableData *png = [NSMutableData dataWithBytes:PNG_SIG length:sizeof(PNG_SIG)];
-    for (id chunk in [[self document] chunks]) {
-        [png appendData:[chunk allData]];
+    [_chunk updateChunkData:data];
+    NSImage *image = [[self document] image];
+
+    [[self imageView] setImage:image];
+    [[self tableView] reloadData];
+
+    @synchronized (self) {
+        _updating = NO;
     }
-//    NSLog(@"PNG\n%@", png);
-    [[self imageView] setImage:[[NSImage alloc] initWithData:png]];
 }
 
 @end

@@ -9,14 +9,10 @@
 #import "Document.h"
 #import "EditorWindowController.h"
 #import "Chunk.h"
-#import "ChunkParser.h"
 
 const char PNG_SIG[8] = {137, 80, 78, 71, 13, 10, 26, 10};
 
-@implementation Document {
-    NSData *_data;
-    NSMutableArray *_chunks;
-}
+@implementation Document
 
 - (id)init
 {
@@ -31,73 +27,55 @@ const char PNG_SIG[8] = {137, 80, 78, 71, 13, 10, 26, 10};
     [self addWindowController:controller];
 }
 
-- (void)windowControllerDidLoadNib:(NSWindowController *)aController
-{
-    [super windowControllerDidLoadNib:aController];
-    // Add any code here that needs to be executed once the windowController has loaded the document's window.
-}
-
 + (BOOL)autosavesInPlace
 {
     return NO;
-    // TODO:
-    //    return YES;
 }
 
 - (NSData *)dataOfType:(NSString *)typeName error:(NSError **)outError
 {
-    // Insert code here to write your document to data of the specified type. If outError != NULL, ensure that you create and set an appropriate error when returning nil.
-    // You can also choose to override -fileWrapperOfType:error:, -writeToURL:ofType:error:, or -writeToURL:ofType:forSaveOperation:originalContentsURL:error: instead.
-    NSException *exception = [NSException exceptionWithName:@"UnimplementedMethod" reason:[NSString stringWithFormat:@"%@ is unimplemented", NSStringFromSelector(_cmd)] userInfo:nil];
-    @throw exception;
-    return nil;
+    return [self concatenateChunks];
 }
 
 - (BOOL)readFromData:(NSData *)data ofType:(NSString *)typeName error:(NSError **)outError
 {
-    _data = data;
-    NSUInteger loc = [self consumeSignature];
-    if (loc == 0) {
+    if (![self isValidSignature:data]) {
         NSLog(@"NOT A PNG");
         //        outError = [NSError errorWithDomain:(NSString *) code:(NSInteger) userInfo:(NSDictionary *)]
         return NO;
     }
 
     // TODO: dispatch this to a thread? measure performance...
-    ChunkParser *parser = [[ChunkParser alloc] initWithData:_data location:loc];
-    while ([parser hasMore]) {
-        Chunk *chunk = [parser nextChunk];
-        [_chunks addObject:chunk];
+    NSUInteger location = 8;
+    while (location < [data length]) {
+        UInt32 chunkLength = [Chunk readChunkLength:data location:location];
+        Chunk *chunk = [[Chunk alloc] initWithData:[data subdataWithRange:NSMakeRange(location, chunkLength)]];
+        [[self chunks] addObject:chunk];
+        location += chunkLength;
     }
 
     return YES;
 }
 
-// returns location of next range
-- (NSUInteger)consumeSignature
+- (BOOL)isValidSignature:(NSData *)data
 {
-    char sig[8];
-    [_data getBytes:sig length:sizeof(PNG_SIG)];
-    if (memcmp(sig, PNG_SIG, sizeof(PNG_SIG))) {
-        return 0;
-    } else {
-        return sizeof(PNG_SIG);
+    Byte sig[8];
+    [data getBytes:sig length:sizeof(PNG_SIG)];
+    return !memcmp(sig, PNG_SIG, sizeof(PNG_SIG));
+}
+
+- (NSData *)concatenateChunks
+{
+    NSMutableData *png = [NSMutableData dataWithBytes:PNG_SIG length:sizeof(PNG_SIG)];
+    for (id chunk in [self chunks]) {
+        [png appendData:[chunk data]];
     }
-}
-
-- (NSArray *)chunks
-{
-    return _chunks;
-}
-
-- (void)setChunks:(NSArray *)chunks
-{
-    // update the file yo
+    return png;
 }
 
 - (NSImage *)image
 {
-    return [[NSImage alloc] initWithData:_data];
+    return [[NSImage alloc] initWithData:[self concatenateChunks]];
 }
 
 @end

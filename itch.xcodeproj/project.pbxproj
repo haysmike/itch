@@ -19,7 +19,6 @@
 		BFB022A01962664600233D9E /* itchTests.m in Sources */ = {isa = PBXBuildFile; fileRef = BFB0229F1962664600233D9E /* itchTests.m */; };
 		BFB022B1196274C000233D9E /* EditorWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = BFB022B0196274C000233D9E /* EditorWindowController.m */; };
 		BFB022B71962754500233D9E /* ItchApplication.m in Sources */ = {isa = PBXBuildFile; fileRef = BFB022B61962754500233D9E /* ItchApplication.m */; };
-		BFB022BA1963343100233D9E /* ChunkParser.m in Sources */ = {isa = PBXBuildFile; fileRef = BFB022B91963343100233D9E /* ChunkParser.m */; };
 		BFB022BD1963346000233D9E /* Chunk.m in Sources */ = {isa = PBXBuildFile; fileRef = BFB022BC1963346000233D9E /* Chunk.m */; };
 		BFB022BF19634EE600233D9E /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BFB022751962664500233D9E /* AppKit.framework */; };
 		BFB022C5196397AF00233D9E /* ItchTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = BFB022C4196397AF00233D9E /* ItchTextView.m */; };
@@ -57,8 +56,6 @@
 		BFB022B0196274C000233D9E /* EditorWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EditorWindowController.m; sourceTree = "<group>"; };
 		BFB022B51962754500233D9E /* ItchApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ItchApplication.h; sourceTree = "<group>"; };
 		BFB022B61962754500233D9E /* ItchApplication.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ItchApplication.m; sourceTree = "<group>"; };
-		BFB022B81963343100233D9E /* ChunkParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChunkParser.h; sourceTree = "<group>"; };
-		BFB022B91963343100233D9E /* ChunkParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChunkParser.m; sourceTree = "<group>"; };
 		BFB022BB1963346000233D9E /* Chunk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Chunk.h; sourceTree = "<group>"; };
 		BFB022BC1963346000233D9E /* Chunk.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Chunk.m; sourceTree = "<group>"; };
 		BFB022C3196397AF00233D9E /* ItchTextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ItchTextView.h; sourceTree = "<group>"; };
@@ -118,8 +115,6 @@
 			children = (
 				BFB022BB1963346000233D9E /* Chunk.h */,
 				BFB022BC1963346000233D9E /* Chunk.m */,
-				BFB022B81963343100233D9E /* ChunkParser.h */,
-				BFB022B91963343100233D9E /* ChunkParser.m */,
 				BFB022841962664500233D9E /* Document.h */,
 				BFB022851962664500233D9E /* Document.m */,
 				BFB022871962664500233D9E /* Document.xib */,
@@ -265,7 +260,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BFB022BA1963343100233D9E /* ChunkParser.m in Sources */,
 				BFB022B71962754500233D9E /* ItchApplication.m in Sources */,
 				BFB022C5196397AF00233D9E /* ItchTextView.m in Sources */,
 				BFB022861962664500233D9E /* Document.m in Sources */,

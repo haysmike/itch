@@ -8,15 +8,16 @@
 
 @interface Chunk : NSObject
 
-@property UInt32 size;
-@property NSString *type;
-@property NSData *data;
-@property UInt32 crc;
++ (UInt32)readChunkLength:(NSData *)data location:(NSUInteger)location;
 
-- (void)updateData:(NSData *)newData;
-- (NSData *)sizeData;
-- (NSData *)crcData;
+- (id)initWithData:(NSData *)data;
+- (NSData *)data;
 
-- (NSData *)allData;
+- (UInt32)chunkDataLength;
+- (NSString *)chunkType;
+- (NSData *)chunkData;
+- (UInt32)chunkCrc;
+
+- (void)updateChunkData:(NSData *)newData;  // also updates CRC
 
 @end
