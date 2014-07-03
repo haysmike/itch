@@ -6,10 +6,12 @@
 //  Copyright (c) 2014 murkey. All rights reserved.
 //
 
+@class ItchTextView;
+
 @interface EditorWindowController : NSWindowController
 
 @property (weak) IBOutlet NSTableView *tableView;
 @property (weak) IBOutlet NSImageView *imageView;
-@property (assign) IBOutlet NSTextView *textView;
+@property (assign) IBOutlet ItchTextView *textView;
 
 @end
