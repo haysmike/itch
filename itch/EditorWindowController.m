@@ -134,6 +134,7 @@
     }
 
     [_chunk updateChunkData:data];
+    [[self document] updateChunk:_chunk];
     NSImage *image = [[self document] image];
 
     [[self imageView] setImage:image];
