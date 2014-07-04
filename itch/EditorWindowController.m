@@ -50,6 +50,11 @@
 {
     [super windowDidLoad];
 
+    [[self tableView] setDataSource:self];
+    [[self tableView] setDelegate:self];
+
+    // the documentView can't be deleted in the nib file
+    [[[self customView] documentView] removeFromSuperview];
     [[self customView] setDocumentView:nil];
 }
 
@@ -63,7 +68,8 @@
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView
 {
-    return [[[self document] chunks] count];
+    NSArray *chunks = [[self document] chunks];
+    return chunks ? [chunks count] : 0;
 }
 
 - (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row;
@@ -145,11 +151,9 @@
 {
     NSUndoManager *undoManager = [[self document] undoManager];
     BOOL canRedo = undoManager && [undoManager canRedo];
+
     if (!dirtyFlag && !canRedo) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[self tableView] setDataSource:self];
-            [[self tableView] setDelegate:self];
-
             if (_textViews) {
                 for (id obj in _textViews) {
                     if (![obj isEqual:[NSNull null]]) {
@@ -163,6 +167,7 @@
             for (int i = 0; i < [[[self document] chunks] count]; i++) {
                 [_textViews addObject:[NSNull null]];
             }
+            [[self tableView] reloadData];
             [[self tableView] selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:NO];
             [self updateImage];
         });
