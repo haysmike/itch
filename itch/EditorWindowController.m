@@ -19,6 +19,7 @@
 @implementation EditorWindowController {
     NSMutableArray *_textViews;
     NSTimer *_timer;
+    NSView *_defaultDocumentView;
 }
 
 - (id)init
@@ -30,6 +31,8 @@
 - (void)windowDidLoad
 {
     [super windowDidLoad];
+
+    _defaultDocumentView = [[self scrollView] documentView];
 
     [[self tableView] setDataSource:self];
     [[self tableView] setDelegate:self];
@@ -57,8 +60,10 @@
             for (int i = 0; i < [[[self document] chunks] count]; i++) {
                 [_textViews addObject:[NSNull null]];
             }
-            [[self tableView] reloadData];
+            NSIndexSet *indexSet = [[self tableView] selectedRowIndexes];
             [[self tableView] selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:NO];
+            [[self tableView] reloadData];
+            [[self tableView] selectRowIndexes:indexSet byExtendingSelection:NO];
 
             [self updateImage];
         });
@@ -67,10 +72,10 @@
 
 - (ItchTextView *)textViewForChunk:(NSUInteger)index
 {
+
     ItchTextView *textView = [_textViews objectAtIndex:index];
-    NSRect frame = [[self scrollView] frame];
-    frame.origin = NSZeroPoint;
     if ([textView isEqual:[NSNull null]]) {
+        NSRect frame = [[self scrollView] documentVisibleRect];
         textView = [[ItchTextView alloc] initWithFrame:frame];
         [textView setFont:[NSFont fontWithName:@"Menlo" size:13.0f]];
         [textView setEnabledTextCheckingTypes:0];
@@ -78,10 +83,8 @@
         [textView setIndex:index];
         [textView setDelegate:self];
         [textView setAutoresizingMask:(NSViewHeightSizable|NSViewWidthSizable|NSViewMinXMargin|NSViewMaxXMargin|NSViewMinYMargin|NSViewMaxYMargin)];
-        [_textViews insertObject:textView atIndex:index];
+        [_textViews replaceObjectAtIndex:index withObject:textView];
     }
-    NSLog(@"adding textView %@ to scrollView %@", textView, [self scrollView]);
-    [[self scrollView] setDocumentView:textView];
     return textView;
 }
 
@@ -139,6 +142,7 @@
 {
     NSInteger row = [[self tableView] selectedRow];
     if (row < 0) {
+        [[self scrollView] setDocumentView:_defaultDocumentView];
         return;
     }
 
@@ -152,7 +156,9 @@
         Byte chars = bytes[i];
         [wowe appendFormat:@"%02x", chars];
     }
-    [[self textViewForChunk:row] setString:wowe];
+    NSTextView *textView = [self textViewForChunk:row];
+    [[self scrollView] setDocumentView:textView];
+    [textView setString:wowe];
 }
 
 #pragma mark - NSTextViewDelegate

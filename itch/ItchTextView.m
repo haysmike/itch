@@ -18,17 +18,23 @@
     }
 }
 
-- (void)insertText:(id)string
+- (void)insertText:(id)aString
 {
-    NSRange range = [self selectedRange];
-    if (range.location == [[self string] length]) return;
-    range.length = [string length];
-    NSInteger over = range.location + range.length - [[self string] length];
+    // calling super here causes insertText:replacementRange: to be called with
+    // reasonable values (MH)
+    [super insertText:aString];
+}
+
+- (void)insertText:(id)aString replacementRange:(NSRange)replacementRange
+{
+    if (replacementRange.location == [[self string] length]) return;
+    replacementRange.length = [aString length];
+    NSInteger over = replacementRange.location + replacementRange.length - [[self string] length];
     if (over > 0) {
-        range.length -= over;
+        replacementRange.length -= over;
     }
-    string = [string substringToIndex:range.length];
-    [super insertText:[string lowercaseString] replacementRange:range];
+    aString = [aString substringToIndex:replacementRange.length];
+    [super insertText:aString replacementRange:replacementRange];
 }
 
 @end
