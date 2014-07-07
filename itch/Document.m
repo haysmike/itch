@@ -59,6 +59,7 @@ const char PNG_SIG[8] = {137, 80, 78, 71, 13, 10, 26, 10};
     }
 
     // TODO: dispatch this to a thread? measure performance...
+    [_chunks removeAllObjects];
     NSUInteger location = 8;
     while (location < [data length]) {
         UInt32 chunkLength = [Chunk readChunkLength:data location:location];
