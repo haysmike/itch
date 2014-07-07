@@ -27,10 +27,48 @@
     return self;
 }
 
-- (ItchTextView *)getTextViewForChunk:(NSUInteger)index
+- (void)windowDidLoad
+{
+    [super windowDidLoad];
+
+    [[self tableView] setDataSource:self];
+    [[self tableView] setDelegate:self];
+}
+
+- (void)setDocumentEdited:(BOOL)dirtyFlag
+{
+    [super setDocumentEdited:dirtyFlag];
+
+    NSUndoManager *undoManager = [[self document] undoManager];
+    BOOL canRedo = undoManager && [undoManager canRedo];
+
+    if (!dirtyFlag && !canRedo) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (_textViews) {
+                for (id obj in _textViews) {
+                    if (![obj isEqual:[NSNull null]]) {
+                        [obj removeFromSuperview];
+                    }
+                }
+                [_textViews removeAllObjects];
+            } else {
+                _textViews = [NSMutableArray arrayWithCapacity:[[[self document] chunks] count]];
+            }
+            for (int i = 0; i < [[[self document] chunks] count]; i++) {
+                [_textViews addObject:[NSNull null]];
+            }
+            [[self tableView] reloadData];
+            [[self tableView] selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:NO];
+
+            [self updateImage];
+        });
+    }
+}
+
+- (ItchTextView *)textViewForChunk:(NSUInteger)index
 {
     ItchTextView *textView = [_textViews objectAtIndex:index];
-    NSRect frame = [[self customView] frame];
+    NSRect frame = [[self scrollView] frame];
     frame.origin = NSZeroPoint;
     if ([textView isEqual:[NSNull null]]) {
         textView = [[ItchTextView alloc] initWithFrame:frame];
@@ -42,26 +80,29 @@
         [textView setAutoresizingMask:(NSViewHeightSizable|NSViewWidthSizable|NSViewMinXMargin|NSViewMaxXMargin|NSViewMinYMargin|NSViewMaxYMargin)];
         [_textViews insertObject:textView atIndex:index];
     }
-    [[self customView] setDocumentView:textView];
+    NSLog(@"adding textView %@ to scrollView %@", textView, [self scrollView]);
+    [[self scrollView] setDocumentView:textView];
     return textView;
 }
 
-- (void)windowDidLoad
+- (Byte)byteForChar:(char)c
 {
-    [super windowDidLoad];
-
-    [[self tableView] setDataSource:self];
-    [[self tableView] setDelegate:self];
-
-    // the documentView can't be deleted in the nib file
-    [[[self customView] documentView] removeFromSuperview];
-    [[self customView] setDocumentView:nil];
+    if (c >= '0' && c <= '9') {
+        c = c - '0';
+    } else if (c >= 'A' && c <= 'F') {
+        c = c - 'A' + 0x0a;
+    } else if (c >= 'a' && c <= 'f') {
+        c = c - 'a' + 0x0a;
+    } else {
+        NSLog(@"invalid half-byte %c", c);
+    }
+    return c;
 }
 
-- (void)dealloc
+- (void)updateImage
 {
-    // TODO: make sure this actually deallocs the text views
-    [_textViews removeAllObjects];
+    NSImage *image = [[self document] image];
+    [[self imageView] setImage:image];
 }
 
 #pragma mark - NSTableViewDataSource
@@ -111,7 +152,7 @@
         Byte chars = bytes[i];
         [wowe appendFormat:@"%02x", chars];
     }
-    [[self getTextViewForChunk:row] setString:wowe];
+    [[self textViewForChunk:row] setString:wowe];
 }
 
 #pragma mark - NSTextViewDelegate
@@ -125,54 +166,6 @@
         NSLog(@"invalid hex: %@", replacementString);
         return NO;
     }
-}
-
-- (Byte)byteForChar:(char)c
-{
-    if (c >= '0' && c <= '9') {
-        c = c - '0';
-    } else if (c >= 'A' && c <= 'F') {
-        c = c - 'A' + 0x0a;
-    } else if (c >= 'a' && c <= 'f') {
-        c = c - 'a' + 0x0a;
-    } else {
-        NSLog(@"invalid half-byte %c", c);
-    }
-    return c;
-}
-
-- (void)updateImage
-{
-    NSImage *image = [[self document] image];
-    [[self imageView] setImage:image];
-}
-
-- (void)setDocumentEdited:(BOOL)dirtyFlag
-{
-    NSUndoManager *undoManager = [[self document] undoManager];
-    BOOL canRedo = undoManager && [undoManager canRedo];
-
-    if (!dirtyFlag && !canRedo) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if (_textViews) {
-                for (id obj in _textViews) {
-                    if (![obj isEqual:[NSNull null]]) {
-                        [obj removeFromSuperview];
-                    }
-                }
-                [_textViews removeAllObjects];
-            } else {
-                _textViews = [NSMutableArray arrayWithCapacity:[[[self document] chunks] count]];
-            }
-            for (int i = 0; i < [[[self document] chunks] count]; i++) {
-                [_textViews addObject:[NSNull null]];
-            }
-            [[self tableView] reloadData];
-            [[self tableView] selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:NO];
-            [self updateImage];
-        });
-    }
-    [super setDocumentEdited:dirtyFlag];
 }
 
 - (void)textDidChange:(NSNotification *)notification
@@ -194,7 +187,6 @@
     [[self tableView] reloadDataForRowIndexes:[NSIndexSet indexSetWithIndex:[textView index]]
                                 columnIndexes:[NSIndexSet indexSetWithIndex:2]];
 
-    // TODO: this is slow. figure out a way of not having it compete for the main queue
     [self updateImage];
 }
 
