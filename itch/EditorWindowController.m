@@ -17,7 +17,7 @@
 @end
 
 @implementation EditorWindowController {
-    NSMutableArray *_textViews;
+    NSMutableDictionary *_textViews;
     NSTimer *_timer;
     NSView *_defaultDocumentView;
 }
@@ -48,17 +48,9 @@
     if (!dirtyFlag && !canRedo) {
         dispatch_async(dispatch_get_main_queue(), ^{
             if (_textViews) {
-                for (id obj in _textViews) {
-                    if (![obj isEqual:[NSNull null]]) {
-                        [obj removeFromSuperview];
-                    }
-                }
                 [_textViews removeAllObjects];
             } else {
-                _textViews = [NSMutableArray arrayWithCapacity:[[[self document] chunks] count]];
-            }
-            for (int i = 0; i < [[[self document] chunks] count]; i++) {
-                [_textViews addObject:[NSNull null]];
+                _textViews = [NSMutableDictionary dictionary];
             }
             NSIndexSet *indexSet = [[self tableView] selectedRowIndexes];
             [[self tableView] selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:NO];
@@ -72,9 +64,9 @@
 
 - (ItchTextView *)textViewForChunk:(NSUInteger)index
 {
-
-    ItchTextView *textView = [_textViews objectAtIndex:index];
-    if ([textView isEqual:[NSNull null]]) {
+    NSNumber *key = [NSNumber numberWithUnsignedLong:index];
+    ItchTextView *textView = [_textViews objectForKey:key];
+    if (!textView) {
         NSRect frame = [[self scrollView] documentVisibleRect];
         textView = [[ItchTextView alloc] initWithFrame:frame];
         [textView setFont:[NSFont fontWithName:@"Menlo" size:13.0f]];
@@ -83,7 +75,7 @@
         [textView setIndex:index];
         [textView setDelegate:self];
         [textView setAutoresizingMask:(NSViewHeightSizable|NSViewWidthSizable|NSViewMinXMargin|NSViewMaxXMargin|NSViewMinYMargin|NSViewMaxYMargin)];
-        [_textViews replaceObjectAtIndex:index withObject:textView];
+        [_textViews setObject:textView forKey:key];
     }
     return textView;
 }
@@ -148,17 +140,16 @@
 
     Chunk *chunk = [[[self document] chunks] objectAtIndex:row];
 
-    NSMutableString *wowe = [NSMutableString string];
+    NSMutableString *text = [NSMutableString string];
 
-    // for each byte
     const Byte *bytes = (Byte *) [[chunk chunkData] bytes];
     for (int i = 0; i < [chunk chunkDataLength]; i++) {
         Byte chars = bytes[i];
-        [wowe appendFormat:@"%02x", chars];
+        [text appendFormat:@"%02x", chars];
     }
     NSTextView *textView = [self textViewForChunk:row];
     [[self scrollView] setDocumentView:textView];
-    [textView setString:wowe];
+    [textView setString:text];
 }
 
 #pragma mark - NSTextViewDelegate
