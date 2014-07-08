@@ -20,8 +20,6 @@
     NSMutableDictionary *_textViews;
     NSTimer *_timer;
     NSView *_defaultDocumentView;
-    NSWindow *_imagePreviewWindow;
-    IKImageView *_imagePreview;
     PreviewWindowController *_previewController;
 }
 
