@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BF007C56196B95B200CD2123 /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BF007C55196B95B200CD2123 /* Quartz.framework */; };
+		BF007C58196BB2FF00CD2123 /* PreviewWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = BF007C57196BB2FF00CD2123 /* PreviewWindow.xib */; };
+		BF007C5B196BB5AD00CD2123 /* PreviewWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = BF007C5A196BB5AD00CD2123 /* PreviewWindowController.m */; };
 		BFB0227D1962664500233D9E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = BFB0227B1962664500233D9E /* InfoPlist.strings */; };
 		BFB0227F1962664500233D9E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = BFB0227E1962664500233D9E /* main.m */; };
 		BFB022831962664500233D9E /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = BFB022811962664500233D9E /* Credits.rtf */; };
@@ -35,6 +38,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		BF007C55196B95B200CD2123 /* Quartz.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quartz.framework; path = System/Library/Frameworks/Quartz.framework; sourceTree = SDKROOT; };
+		BF007C57196BB2FF00CD2123 /* PreviewWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PreviewWindow.xib; sourceTree = "<group>"; };
+		BF007C59196BB5AD00CD2123 /* PreviewWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreviewWindowController.h; sourceTree = "<group>"; };
+		BF007C5A196BB5AD00CD2123 /* PreviewWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreviewWindowController.m; sourceTree = "<group>"; };
 		BFB0226F1962664500233D9E /* itch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = itch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BFB022751962664500233D9E /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		BFB0227A1962664500233D9E /* itch-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "itch-Info.plist"; sourceTree = "<group>"; };
@@ -67,6 +74,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BF007C56196B95B200CD2123 /* Quartz.framework in Frameworks */,
 				BFB022BF19634EE600233D9E /* AppKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -104,6 +112,7 @@
 		BFB022711962664500233D9E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				BF007C55196B95B200CD2123 /* Quartz.framework */,
 				BFB022751962664500233D9E /* AppKit.framework */,
 				BFB022941962664600233D9E /* XCTest.framework */,
 			);
@@ -126,6 +135,9 @@
 				BFB022C4196397AF00233D9E /* ItchTextView.m */,
 				BFB0228A1962664500233D9E /* MainMenu.xib */,
 				BFB022791962664500233D9E /* Supporting Files */,
+				BF007C57196BB2FF00CD2123 /* PreviewWindow.xib */,
+				BF007C59196BB5AD00CD2123 /* PreviewWindowController.h */,
+				BF007C5A196BB5AD00CD2123 /* PreviewWindowController.m */,
 			);
 			path = itch;
 			sourceTree = "<group>";
@@ -239,6 +251,7 @@
 			files = (
 				BFB022891962664500233D9E /* Document.xib in Resources */,
 				BFB0228E1962664500233D9E /* Images.xcassets in Resources */,
+				BF007C58196BB2FF00CD2123 /* PreviewWindow.xib in Resources */,
 				BFB0227D1962664500233D9E /* InfoPlist.strings in Resources */,
 				BFB022831962664500233D9E /* Credits.rtf in Resources */,
 				BFB0228C1962664500233D9E /* MainMenu.xib in Resources */,
@@ -262,6 +275,7 @@
 			files = (
 				BFB022B71962754500233D9E /* ItchApplication.m in Sources */,
 				BFB022C5196397AF00233D9E /* ItchTextView.m in Sources */,
+				BF007C5B196BB5AD00CD2123 /* PreviewWindowController.m in Sources */,
 				BFB022861962664500233D9E /* Document.m in Sources */,
 				BFB022BD1963346000233D9E /* Chunk.m in Sources */,
 				BFB022B1196274C000233D9E /* EditorWindowController.m in Sources */,

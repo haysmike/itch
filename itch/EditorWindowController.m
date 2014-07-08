@@ -6,11 +6,11 @@
 //  Copyright (c) 2014 murkey. All rights reserved.
 //
 
-
 #import "EditorWindowController.h"
 #import "Document.h"
 #import "Chunk.h"
 #import "ItchTextView.h"
+#import "PreviewWindowController.h"
 
 @interface EditorWindowController () <NSTableViewDataSource, NSTableViewDelegate, NSTextViewDelegate>
 
@@ -20,6 +20,9 @@
     NSMutableDictionary *_textViews;
     NSTimer *_timer;
     NSView *_defaultDocumentView;
+    NSWindow *_imagePreviewWindow;
+    IKImageView *_imagePreview;
+    PreviewWindowController *_previewController;
 }
 
 - (id)init
@@ -36,6 +39,8 @@
 
     [[self tableView] setDataSource:self];
     [[self tableView] setDelegate:self];
+
+    [[self imageView] setTarget:self];
 }
 
 - (void)setDocumentEdited:(BOOL)dirtyFlag
@@ -59,6 +64,15 @@
 
             [self updateImage];
         });
+    }
+}
+
+- (void)mouseDown:(NSEvent *)theEvent
+{
+    NSView *target = [[[self window] contentView] hitTest:[theEvent locationInWindow]];
+    if (target == [self imageView]) {
+        _previewController = [[PreviewWindowController alloc] initWithImage:[[super document] image]];
+        [_previewController showWindow:self];
     }
 }
 
