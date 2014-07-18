@@ -66,8 +66,10 @@
 {
     NSNumber *key = [NSNumber numberWithUnsignedLong:index];
     ItchTextView *textView = [_textViews objectForKey:key];
-    if (!textView) {
-        NSRect frame = [[self scrollView] documentVisibleRect];
+    NSRect frame = [[self scrollView] documentVisibleRect];
+    if (textView) {
+        [textView setFrame:frame];
+    } else {
         textView = [[ItchTextView alloc] initWithFrame:frame];
         [textView setFont:[NSFont fontWithName:@"Menlo" size:13.0f]];
         [textView setEnabledTextCheckingTypes:0];
